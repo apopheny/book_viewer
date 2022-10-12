@@ -1,0 +1,30 @@
+<h2 class="content-subhead">Search</h2>
+
+<form action="/search" method="get">
+  <input name="query" value="<%= params[:query] %>">
+  <button type="submit">Search</button>
+</form>
+
+<% if @text_query %>
+  <h2 class="content-subhead">Resuts for '<%= @text_query %>'</h2>
+  
+  <ul class="pure-menu-list">
+    <% if @search_results.empty? || @text_query.empty? %>
+     <%= "<p>Sorry, no results found</p>" %>
+    <% else %>
+      <% @search_results.each do |chapter| %>
+        <li class="pure-menu-item">
+          <h4><a href="/chapters/<%= chapter %>" class="pure-menu-link">Chapter <%= chapter %>: <%= @contents[chapter - 1] %></a></h4>
+        </li>
+        <li class="pure-menu-item">
+          <% current_chap = File.read("./data/chp#{chapter}.txt") %>
+          <% results = relevant_paragraphs(current_chap, @text_query).select { |pgph| pgph } %>
+          <% results.each do |pgph| %>
+            <p><a href="/chapters/<%= chapter %>#<%= pgph[:number] %>">&#x2022 <%= bold_match(pgph[:par], @text_query) %></a></p>
+          <% end %>
+        </li>
+      <% end %>
+    <% end %>
+  </ul>
+
+<% end %>
